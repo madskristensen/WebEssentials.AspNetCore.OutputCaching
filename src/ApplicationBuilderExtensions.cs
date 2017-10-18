@@ -10,32 +10,12 @@ namespace Microsoft.AspNetCore.Builder
     /// </summary>
     public static class ApplicationBuilderExtensions
     {
-        private static Func<HttpContext, bool> _isCachingSupported = (context) =>
-        {
-            if (context.Request.Method != HttpMethods.Get) return false;
-            if (context.Response.StatusCode != StatusCodes.Status200OK) return false;
-            if (context.User.Identity.IsAuthenticated) return false;
-            if (context.Response.Headers.ContainsKey(HeaderNames.SetCookie)) return false;
-
-            return true;
-        };
-
         /// <summary>
         /// Registers the output caching middleware
         /// </summary>
         public static void UseOutputCaching(this IApplicationBuilder app)
         {
-            app.UseMiddleware<OutputCacheMiddleware>(_isCachingSupported);
-        }
-
-        /// <summary>
-        /// Registers the output caching middleware
-        /// </summary>
-        /// <param name="app">The builder.</param>
-        /// <param name="filter">A filter function that determines if the response supports output caching.</param>
-        public static void UseOutputCaching(this IApplicationBuilder app, Func<HttpContext, bool> filter)
-        {
-            app.UseMiddleware<OutputCacheMiddleware>(filter);
+            app.UseMiddleware<OutputCacheMiddleware>();
         }
     }
 }

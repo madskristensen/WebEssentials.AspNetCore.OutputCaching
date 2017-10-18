@@ -13,6 +13,20 @@ namespace Microsoft.AspNetCore.Http
         /// Enabled output caching of the response.
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="profile">The caching profile to use.</param>
+        public static void EnableOutputCaching(this HttpContext context, IOutputCacheProfile profile)
+        {
+            var slidingExpiration = TimeSpan.FromSeconds(profile.Duration);
+            string varyByHeader = profile.VaryByHeader;
+            string varyByParam = profile.VaryByParam;
+
+            context.EnableOutputCaching(slidingExpiration, varyByHeader, varyByParam);
+        }
+
+        /// <summary>
+        /// Enabled output caching of the response.
+        /// </summary>
+        /// <param name="context"></param>
         /// <param name="slidingExpiration">The amount of seconds to cache the output for.</param>
         /// <param name="varyByHeaders">Comma separated list of HTTP headers to vary the caching by.</param>
         /// <param name="varyByParam">Comma separated list of query string parameter names to vary the caching by.</param>

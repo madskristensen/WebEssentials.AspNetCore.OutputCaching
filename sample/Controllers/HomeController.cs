@@ -18,8 +18,14 @@ namespace Sample.Controllers
             return View("Index");
         }
 
-        [OutputCache(Duration = 600)]
+        [OutputCache(Duration = 600, VaryByParam = "foo")]
         public IActionResult Query()
+        {
+            return View("Index");
+        }
+
+        [OutputCache(Profile = "default")]
+        public IActionResult Profile()
         {
             return View("Index");
         }

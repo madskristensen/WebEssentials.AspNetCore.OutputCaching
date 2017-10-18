@@ -6,12 +6,10 @@ namespace WebEssentials.AspNetCore.OutputCaching
 {
     internal class OutputCachingService : IOutputCachingService
     {
-        private IHostingEnvironment _env;
         private IMemoryCache _cache;
 
-        public OutputCachingService(IHostingEnvironment env)
+        public OutputCachingService()
         {
-            _env = env;
             _cache = new MemoryCache(new MemoryCacheOptions());
         }
 
@@ -26,12 +24,14 @@ namespace WebEssentials.AspNetCore.OutputCaching
             if (!context.IsOutputCachingEnabled(out OutputCacheFeature feature))
                 return;
 
+            var env = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
+
             var options = new MemoryCacheEntryOptions();
             options.SetSlidingExpiration(feature.SlidingExpiration.Value);
 
             foreach (string globs in feature.FileDependencies)
             {
-                options.AddExpirationToken(_env.ContentRootFileProvider.Watch(globs));
+                options.AddExpirationToken(env.ContentRootFileProvider.Watch(globs));
             }
 
             string cleanRoute = NormalizeRoute(route);

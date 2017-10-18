@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using WebEssentials.AspNetCore.OutputCaching;
 
 namespace Microsoft.AspNetCore.Mvc
 {
@@ -19,6 +20,11 @@ namespace Microsoft.AspNetCore.Mvc
         {
             _fileDependencies = fileDependencies;
         }
+
+        /// <summary>
+        /// The name of the profile.
+        /// </summary>
+        public string Profile { get; set; }
 
         /// <summary>
         /// The duration in seconds of how long to cache the response.
@@ -40,12 +46,26 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            context.HttpContext.EnableOutputCaching
-            (
-                slidingExpiration: TimeSpan.FromSeconds(Duration),
-                varyByHeaders: VaryByHeader,
-                varyByParam: VaryByParam
-            );
+            if (!string.IsNullOrEmpty(Profile))
+            {
+                var options = (OutputCacheOptions)context.HttpContext.RequestServices.GetService(typeof(OutputCacheOptions));
+
+                if (options == null || !options.Profiles.ContainsKey(Profile))
+                {
+                    throw new ArgumentException($"The Profile '{Profile}' hasn't been created.");
+                }
+
+                context.HttpContext.EnableOutputCaching(options.Profiles[Profile]);
+            }
+            else
+            {
+                context.HttpContext.EnableOutputCaching
+                (
+                    slidingExpiration: TimeSpan.FromSeconds(Duration),
+                    varyByHeaders: VaryByHeader,
+                    varyByParam: VaryByParam
+                );
+            }
         }
     }
 }

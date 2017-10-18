@@ -15,47 +15,49 @@ namespace WebEssentials.AspNetCore.OutputCaching
     {
         private readonly RequestDelegate _next;
         private readonly IOutputCachingService _cache;
-        private readonly Func<HttpContext, bool> _filter;
+        private readonly OutputCacheOptions _options;
 
-        public OutputCacheMiddleware(RequestDelegate next, IOutputCachingService cache, Func<HttpContext, bool> filter)
+        public OutputCacheMiddleware(RequestDelegate next, IOutputCachingService cache, OutputCacheOptions options)
         {
             _next = next;
             _cache = cache;
-            _filter = filter;
+            _options = options;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (!_filter(context))
+            if (!_options.DefaultContextCheck(context) || !_options.IsRequestValid(context))
             {
                 await _next(context);
-                return;
             }
-
-            if (_cache.TryGetValue(context.Request.Path, out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
+            else if (_cache.TryGetValue(context.Request.Path, out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
             {
                 await ServeFromCacheAsync(context, item);
             }
             else
+            {               await ServeFromMvcAndCacheAsync(context, entry);
+            }
+        }
+
+        private async Task ServeFromMvcAndCacheAsync(HttpContext context, OutputCacheResponseEntry entry)
+        {
+            HttpResponse response = context.Response;
+            Stream originalStream = response.Body;
+
+            using (var ms = new MemoryStream())
             {
-                HttpResponse response = context.Response;
-                Stream originalStream = response.Body;
+                response.Body = ms;
 
-                using (var ms = new MemoryStream())
-                {
-                    response.Body = ms;
+                await _next(context);
 
-                    await _next(context);
+                byte[] bytes = ms.ToArray();
 
-                    byte[] bytes = ms.ToArray();
+                AddEtagToResponse(context, bytes);
+                AddResponseToCache(context, entry, bytes);
 
-                    AddEtagToResponse(context, bytes);
-                    AddResponseToCache(context, entry, bytes);
+                ms.Seek(0, SeekOrigin.Begin);
 
-                    ms.Seek(0, SeekOrigin.Begin);
-
-                    await ms.CopyToAsync(originalStream);
-                }
+                await ms.CopyToAsync(originalStream);
             }
         }
 

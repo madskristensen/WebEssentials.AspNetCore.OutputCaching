@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using WebEssentials.AspNetCore.OutputCaching;
 
 namespace Sample
 {
@@ -11,7 +12,13 @@ namespace Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddOutputCaching();
+            services.AddOutputCaching(options =>
+            {
+                options.Profiles["default"] = new OutputCacheProfile
+                {
+                    Duration = 600
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
