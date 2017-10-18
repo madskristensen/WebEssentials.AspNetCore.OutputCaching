@@ -3,8 +3,14 @@ using System.Collections.Generic;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
+    /// <summary>
+    /// A version of the route in memory
+    /// </summary>
     public class OutputCacheResponse
     {
+        /// <summary>
+        /// Creates a new instance of the permutation.
+        /// </summary>
         public OutputCacheResponse(byte[] body, IHeaderDictionary headers)
         {
             Body = body;
@@ -16,7 +22,14 @@ namespace WebEssentials.AspNetCore.OutputCaching
             }
         }
 
+        /// <summary>
+        /// The body of the HTTP response.
+        /// </summary>
         public byte[] Body { get; set; }
+
+        /// <summary>
+        /// The headers of the HTTP response.
+        /// </summary>
         public Dictionary<string, string> Headers { get; }
     }
 }

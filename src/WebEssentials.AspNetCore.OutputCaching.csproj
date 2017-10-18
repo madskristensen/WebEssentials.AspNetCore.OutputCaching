@@ -16,6 +16,10 @@
     <RepositoryUrl>https://github.com/madskristensen/WebEssentials.AspNetCore.OutputCaching</RepositoryUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\WebEssentials.AspNetCore.OutputCaching.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
   </ItemGroup>

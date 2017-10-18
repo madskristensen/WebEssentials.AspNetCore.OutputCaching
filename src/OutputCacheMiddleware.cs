@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.IO;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
-    public class OutputCacheMiddleware
+    internal class OutputCacheMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly IOutputCachingService _cache;
@@ -31,14 +32,14 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 return;
             }
 
-            if (_cache.TryGetValue(context.Request.Path, out OutputCacheResponseEntry entry) && entry.IsCached(context, out var item))
+            if (_cache.TryGetValue(context.Request.Path, out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
             {
-                await ServeFromCache(context, item);
+                await ServeFromCacheAsync(context, item);
             }
             else
             {
-                var response = context.Response;
-                var originalStream = response.Body;
+                HttpResponse response = context.Response;
+                Stream originalStream = response.Body;
 
                 using (var ms = new MemoryStream())
                 {
@@ -58,7 +59,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             }
         }
 
-        private static async Task ServeFromCache(HttpContext context, OutputCacheResponse value)
+        private static async Task ServeFromCacheAsync(HttpContext context, OutputCacheResponse value)
         {
             foreach (string name in value.Headers.Keys)
             {
@@ -68,7 +69,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 }
             }
 
-            if (context.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var etag) && context.Response.Headers[HeaderNames.ETag] == etag)
+            if (context.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out StringValues etag) && context.Response.Headers[HeaderNames.ETag] == etag)
             {
                 context.Response.StatusCode = StatusCodes.Status304NotModified;
             }
@@ -82,7 +83,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
         {
             if (entry == null)
             {
-                var feature = context.Features.Get<OutputCacheFeature>();
+                OutputCacheFeature feature = context.Features.Get<OutputCacheFeature>();
                 entry = new OutputCacheResponseEntry(context, bytes, feature);
 
                 _cache.Set(context.Request.Path, entry, context);
@@ -98,7 +99,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             if (context.Response.StatusCode != StatusCodes.Status200OK)
                 return;
 
-            if (!context.IsOutputCachingEnabled(out var feature))
+            if (!context.IsOutputCachingEnabled(out OutputCacheFeature feature))
                 return;
 
             if (context.Response.Headers.ContainsKey(HeaderNames.ETag))

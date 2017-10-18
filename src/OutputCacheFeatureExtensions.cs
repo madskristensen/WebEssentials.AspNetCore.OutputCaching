@@ -4,11 +4,21 @@ using WebEssentials.AspNetCore.OutputCaching;
 
 namespace Microsoft.AspNetCore.Http
 {
+    /// <summary>
+    /// Extensions methods for HttpContext
+    /// </summary>
     public static class OutputCacheFeatureExtensions
     {
+        /// <summary>
+        /// Enabled output caching of the response.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="slidingExpiration">The amount of seconds to cache the output for.</param>
+        /// <param name="varyByHeaders">Comma separated list of HTTP headers to vary the caching by.</param>
+        /// <param name="varyByParam">Comma separated list of query string parameter names to vary the caching by.</param>
         public static void EnableOutputCaching(this HttpContext context, TimeSpan slidingExpiration, string varyByHeaders = null, string varyByParam = null)
         {
-            var feature = context.Features.Get<OutputCacheFeature>();
+            OutputCacheFeature feature = context.Features.Get<OutputCacheFeature>();
 
             if (feature == null)
             {
@@ -26,16 +36,6 @@ namespace Microsoft.AspNetCore.Http
             if (varyByParam != null)
             {
                 feature.VaryByParam.AddRange(varyByParam.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()));
-            }
-        }
-
-        public static void AddFileDependencies(this HttpContext context, params string[] fileDependencies)
-        {
-            var feature = context.Features.Get<OutputCacheFeature>();
-
-            if (feature != null)
-            {
-                feature.FileDependencies.AddRange(fileDependencies);
             }
         }
 

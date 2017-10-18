@@ -4,14 +4,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
-    public interface IOutputCachingService
-    {
-        bool TryGetValue(string route, out OutputCacheResponseEntry value);
-        void Set(string route, OutputCacheResponseEntry entry, HttpContext context);
-        void Remove(string route);
-        void Clear();
-    }
-
     internal class OutputCachingService : IOutputCachingService
     {
         private IHostingEnvironment _env;
@@ -31,7 +23,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
         public void Set(string route, OutputCacheResponseEntry entry, HttpContext context)
         {
-            if (!context.IsOutputCachingEnabled(out var feature))
+            if (!context.IsOutputCachingEnabled(out OutputCacheFeature feature))
                 return;
 
             var options = new MemoryCacheEntryOptions();
