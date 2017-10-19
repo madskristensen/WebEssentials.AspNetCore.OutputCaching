@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using WebEssentials.AspNetCore.OutputCaching;
+using WebMarkupMin.AspNetCore2;
 
 namespace Sample
 {
@@ -21,6 +22,14 @@ namespace Sample
                     FileDependencies= new []{ ""}
                 };
             });
+
+            services.AddWebMarkupMin(options =>
+            {
+                options.AllowMinificationInDevelopmentEnvironment = true;
+            }).AddHtmlMinification(options =>
+            {
+                options.MinificationSettings.RemoveOptionalEndTags = false;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -29,6 +38,7 @@ namespace Sample
             app.UseDeveloperExceptionPage();
 
             app.UseOutputCaching();
+            app.UseWebMarkupMin();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

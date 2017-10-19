@@ -77,6 +77,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
         private static async Task ServeFromCacheAsync(HttpContext context, OutputCacheResponse value)
         {
+            // Copy over the HTTP headers
             foreach (string name in value.Headers.Keys)
             {
                 if (!context.Response.Headers.ContainsKey(name))
@@ -85,8 +86,10 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 }
             }
 
+            // Serve a conditional GET request when if-none-match header exist
             if (context.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out StringValues etag) && context.Response.Headers[HeaderNames.ETag] == etag)
             {
+                context.Response.ContentLength = 0;
                 context.Response.StatusCode = StatusCodes.Status304NotModified;
             }
             else

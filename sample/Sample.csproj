@@ -6,6 +6,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="WebMarkupMin.AspNetCore2">
+      <Version>2.4.2</Version>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
