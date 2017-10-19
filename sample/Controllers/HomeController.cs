@@ -37,5 +37,11 @@ namespace Sample.Controllers
             Response.Headers.Add(HeaderNames.CacheControl, "no-store, no-cache, must-revalidate");
             return RedirectToActionPermanent("Index");
         }
+
+        public IActionResult NoCache()
+        {
+            Response.Headers.Add(HeaderNames.CacheControl, "no-store, no-cache, must-revalidate");
+            return View("Index");
+        }
     }
 }

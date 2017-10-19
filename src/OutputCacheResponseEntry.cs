@@ -18,10 +18,10 @@ namespace WebEssentials.AspNetCore.OutputCaching
         public OutputCacheResponseEntry(HttpContext context, byte[] body, OutputCacheProfile profile)
         {
             _profile = profile;
-            Set(context, new OutputCacheResponse(body, context.Response.Headers));
+            AddResponse(context, new OutputCacheResponse(body, context.Response.Headers));
         }
 
-        internal void Set(HttpContext context, OutputCacheResponse response)
+        internal void AddResponse(HttpContext context, OutputCacheResponse response)
         {
             string key = GetCacheKey(context);
             _responses[key] = response;

@@ -53,26 +53,27 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
                     await _next(context);
 
-                    if (_options.DoesResponseQualify(context))
+                    if (ShouldOutputCache(context, out OutputCacheProfile profile))
                     {
                         byte[] bytes = ms.ToArray();
 
                         AddEtagToResponse(context, bytes);
-                        AddResponseToCache(context, entry, bytes);
+                        AddResponseToCache(context, entry, bytes, profile);
                     }
 
-                    if (ms.Length > 0)
-                    {
-                        ms.Seek(0, SeekOrigin.Begin);
-
-                        await ms.CopyToAsync(originalStream);
-                    }
+                    ms.Seek(0, SeekOrigin.Begin);
+                    await ms.CopyToAsync(originalStream);
                 }
             }
             finally
             {
                 response.Body = originalStream;
             }
+        }
+
+        private bool ShouldOutputCache(HttpContext context, out OutputCacheProfile profile)
+        {
+            return context.IsOutputCachingEnabled(out profile) && _options.DoesResponseQualify(context);
         }
 
         private static async Task ServeFromCacheAsync(HttpContext context, OutputCacheResponse value)
@@ -95,18 +96,16 @@ namespace WebEssentials.AspNetCore.OutputCaching
             }
         }
 
-        private void AddResponseToCache(HttpContext context, OutputCacheResponseEntry entry, byte[] bytes)
+        private void AddResponseToCache(HttpContext context, OutputCacheResponseEntry entry, byte[] bytes, OutputCacheProfile profile)
         {
             if (entry == null)
             {
-                OutputCacheProfile profile = context.Features.Get<OutputCacheProfile>();
-
                 entry = new OutputCacheResponseEntry(context, bytes, profile);
                 _cache.Set(context.Request.Path, entry, context);
             }
             else
             {
-                entry.Set(context, new OutputCacheResponse(bytes, context.Response.Headers));
+                entry.AddResponse(context, new OutputCacheResponse(bytes, context.Response.Headers));
             }
         }
 

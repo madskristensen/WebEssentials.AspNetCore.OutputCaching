@@ -48,11 +48,11 @@ namespace WebEssentials.AspNetCore.OutputCaching
             feature.VaryByParam = varyByParam;
         }
 
-        internal static bool IsOutputCachingEnabled(this HttpContext context, out OutputCacheProfile feature)
+        internal static bool IsOutputCachingEnabled(this HttpContext context, out OutputCacheProfile profile)
         {
-            feature = context.Features.Get<OutputCacheProfile>();
+            profile = context.Features.Get<OutputCacheProfile>();
 
-            return feature != null && feature.Duration > 0;
+            return profile != null && profile.Duration > 0;
         }
     }
 }
