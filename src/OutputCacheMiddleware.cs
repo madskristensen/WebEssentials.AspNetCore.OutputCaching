@@ -87,9 +87,12 @@ namespace WebEssentials.AspNetCore.OutputCaching
             if (entry == null)
             {
                 OutputCacheProfile profile = context.Features.Get<OutputCacheProfile>();
-                entry = new OutputCacheResponseEntry(context, bytes, profile);
 
-                _cache.Set(context.Request.Path, entry, context);
+                if (profile != null)
+                {
+                    entry = new OutputCacheResponseEntry(context, bytes, profile);
+                    _cache.Set(context.Request.Path, entry, context);
+                }
             }
             else
             {

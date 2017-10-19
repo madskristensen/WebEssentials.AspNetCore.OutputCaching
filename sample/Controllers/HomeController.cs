@@ -29,5 +29,10 @@ namespace Sample.Controllers
         {
             return View("Index");
         }
+
+        public IActionResult Redirect()
+        {
+            return RedirectToActionPermanent("Index");
+        }
     }
 }
