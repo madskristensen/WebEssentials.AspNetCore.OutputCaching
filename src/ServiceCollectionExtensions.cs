@@ -16,6 +16,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static void AddOutputCaching(this IServiceCollection services)
         {
+            var options = new OutputCacheOptions();
+
+            services.AddSingleton(options);
             services.AddSingleton<IOutputCachingService, OutputCachingService>();
         }
 
