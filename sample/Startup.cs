@@ -26,6 +26,7 @@ namespace Sample
             services.AddWebMarkupMin(options =>
             {
                 options.AllowMinificationInDevelopmentEnvironment = true;
+                options.DisablePoweredByHttpHeaders = true;
             }).AddHtmlMinification(options =>
             {
                 options.MinificationSettings.RemoveOptionalEndTags = false;
@@ -35,6 +36,7 @@ namespace Sample
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseBrowserLink();
             app.UseDeveloperExceptionPage();
 
             app.UseOutputCaching();
