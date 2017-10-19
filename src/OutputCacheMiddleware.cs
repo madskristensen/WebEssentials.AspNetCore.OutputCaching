@@ -26,7 +26,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (!_options.DefaultContextCheck(context) || !_options.IsRequestValid(context))
+            if (!_options.IsRequestValid(context))
             {
                 await _next(context);
             }
@@ -45,20 +45,33 @@ namespace WebEssentials.AspNetCore.OutputCaching
             HttpResponse response = context.Response;
             Stream originalStream = response.Body;
 
-            using (var ms = new MemoryStream())
+            try
             {
-                response.Body = ms;
+                using (var ms = new MemoryStream())
+                {
+                    response.Body = ms;
 
-                await _next(context);
+                    await _next(context);
 
-                byte[] bytes = ms.ToArray();
+                    if (_options.IsResponseValid(context))
+                    {
+                        byte[] bytes = ms.ToArray();
 
-                AddEtagToResponse(context, bytes);
-                AddResponseToCache(context, entry, bytes);
+                        AddEtagToResponse(context, bytes);
+                        AddResponseToCache(context, entry, bytes);
+                    }
 
-                ms.Seek(0, SeekOrigin.Begin);
+                    if (ms.Length > 0)
+                    {
+                        ms.Seek(0, SeekOrigin.Begin);
 
-                await ms.CopyToAsync(originalStream);
+                        await ms.CopyToAsync(originalStream);
+                    }
+                }
+            }
+            finally
+            {
+                response.Body = originalStream;
             }
         }
 
@@ -88,11 +101,8 @@ namespace WebEssentials.AspNetCore.OutputCaching
             {
                 OutputCacheProfile profile = context.Features.Get<OutputCacheProfile>();
 
-                if (profile != null)
-                {
-                    entry = new OutputCacheResponseEntry(context, bytes, profile);
-                    _cache.Set(context.Request.Path, entry, context);
-                }
+                entry = new OutputCacheResponseEntry(context, bytes, profile);
+                _cache.Set(context.Request.Path, entry, context);
             }
             else
             {

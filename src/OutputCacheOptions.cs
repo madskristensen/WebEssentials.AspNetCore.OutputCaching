@@ -18,18 +18,24 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <summary>
         /// Determines if the middleware is enabled for the specified HTTP context.
         /// </summary>
-        public Func<HttpContext, bool> IsRequestValid { get; set; } = (context) => { return true; };
+        public Func<HttpContext, bool> IsRequestValid { get; set; } = IsDefaultRequestValid;
 
         /// <summary>
         /// A list of named caching profiles.
         /// </summary>
         public IDictionary<string, OutputCacheProfile> Profiles { get; }
 
-        internal Func<HttpContext, bool> DefaultContextCheck = (context) =>
+        internal static Func<HttpContext, bool> IsDefaultRequestValid = (context) =>
         {
             if (context.Request.Method != HttpMethods.Get) return false;
-            if (context.Response.StatusCode != StatusCodes.Status200OK) return false;
             if (context.User.Identity.IsAuthenticated) return false;
+
+            return true;
+        };
+
+        internal Func<HttpContext, bool> IsResponseValid = (context) =>
+        {
+            if (context.Response.StatusCode != StatusCodes.Status200OK) return false;
             if (context.Response.Headers.ContainsKey(HeaderNames.SetCookie)) return false;
 
             return true;
