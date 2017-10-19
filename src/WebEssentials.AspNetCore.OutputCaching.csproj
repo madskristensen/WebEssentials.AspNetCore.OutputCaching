@@ -3,10 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageTags>cdn, azure, cloud, performance, speed</PackageTags>
+    <PackageTags>asp.net, performance, speed, cache, caching</PackageTags>
     <Version>1.0.0</Version>
     <Authors>Mads Kristensen</Authors>
-    <Description>Tag Helpers for ASP.NET Core that makes it easy to work with CDNs</Description>
+    <Description>ASP.NET Core middleware providing pure server-side output caching through a simple-to-use API</Description>
     <Copyright>Copyright © Mads Kristensen</Copyright>
     <PackageId>WebEssentials.AspNetCore.OutputCaching</PackageId>
     <Product>WebEssentials.AspNetCore.OutputCaching</Product>
@@ -16,8 +16,8 @@
     <RepositoryUrl>https://github.com/madskristensen/WebEssentials.AspNetCore.OutputCaching</RepositoryUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard2.0\WebEssentials.AspNetCore.OutputCaching.xml</DocumentationFile>
+  <PropertyGroup>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\WebEssentials.AspNetCore.OutputCaching.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Net.Http.Headers;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
@@ -15,7 +16,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <summary>
         /// Comma separated list of HTTP headers to vary the caching by.
         /// </summary>
-        public string VaryByHeader { get; set; }
+        public string VaryByHeader { get; set; } = HeaderNames.AcceptEncoding;
 
         /// <summary>
         /// Comma separated list of query string parameters to vary the caching by.
