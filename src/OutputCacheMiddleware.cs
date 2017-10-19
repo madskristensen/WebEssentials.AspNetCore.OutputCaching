@@ -53,27 +53,26 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
                     await _next(context);
 
-                    if (ShouldOutputCache(context, out OutputCacheProfile profile))
+                    if (_options.DoesResponseQualify(context))
                     {
                         byte[] bytes = ms.ToArray();
 
                         AddEtagToResponse(context, bytes);
-                        AddResponseToCache(context, entry, bytes, profile);
+                        AddResponseToCache(context, entry, bytes);
                     }
 
-                    ms.Seek(0, SeekOrigin.Begin);
-                    await ms.CopyToAsync(originalStream);
+                    if (ms.Length > 0)
+                    {
+                        ms.Seek(0, SeekOrigin.Begin);
+
+                        await ms.CopyToAsync(originalStream);
+                    }
                 }
             }
             finally
             {
                 response.Body = originalStream;
             }
-        }
-
-        private bool ShouldOutputCache(HttpContext context, out OutputCacheProfile profile)
-        {
-            return context.IsOutputCachingEnabled(out profile) && _options.DoesResponseQualify(context);
         }
 
         private static async Task ServeFromCacheAsync(HttpContext context, OutputCacheResponse value)
@@ -96,8 +95,13 @@ namespace WebEssentials.AspNetCore.OutputCaching
             }
         }
 
-        private void AddResponseToCache(HttpContext context, OutputCacheResponseEntry entry, byte[] bytes, OutputCacheProfile profile)
+        private void AddResponseToCache(HttpContext context, OutputCacheResponseEntry entry, byte[] bytes)
         {
+            if (!context.IsOutputCachingEnabled(out OutputCacheProfile profile))
+            {
+                return;
+            }
+
             if (entry == null)
             {
                 entry = new OutputCacheResponseEntry(context, bytes, profile);
