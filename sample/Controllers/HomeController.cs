@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System;
+using WebEssentials.AspNetCore.OutputCaching;
+using Microsoft.Net.Http.Headers;
 
 namespace Sample.Controllers
 {
@@ -32,6 +34,7 @@ namespace Sample.Controllers
 
         public IActionResult Redirect()
         {
+            Response.Headers.Add(HeaderNames.CacheControl, "no-store, no-cache, must-revalidate");
             return RedirectToActionPermanent("Index");
         }
     }

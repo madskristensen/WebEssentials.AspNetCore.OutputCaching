@@ -26,7 +26,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (!_options.IsRequestValid(context))
+            if (!_options.DoesRequestQualify(context))
             {
                 await _next(context);
             }
@@ -53,7 +53,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
                     await _next(context);
 
-                    if (_options.IsResponseValid(context))
+                    if (_options.DoesResponseQualify(context))
                     {
                         byte[] bytes = ms.ToArray();
 

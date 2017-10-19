@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using WebEssentials.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Http;
 
-namespace Microsoft.AspNetCore.Http
+namespace WebEssentials.AspNetCore.OutputCaching
 {
     /// <summary>
     /// Extensions methods for HttpContext
@@ -43,7 +43,7 @@ namespace Microsoft.AspNetCore.Http
             }
 
             feature.Duration = slidingExpiration.TotalSeconds;
-            feature.FileDependencies.AddRange(fileDependencies);
+            feature.FileDependencies = fileDependencies;
             feature.VaryByHeader = varyByHeaders;
             feature.VaryByParam = varyByParam;
         }

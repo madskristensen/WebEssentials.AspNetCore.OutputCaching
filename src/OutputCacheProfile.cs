@@ -26,6 +26,6 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <summary>
         /// Globbing patterns relative to the content root (not the wwwroot).
         /// </summary>
-        public List<string> FileDependencies { get; set; } = new List<string>(new[] { "**/*.*" });
+        public IEnumerable<string> FileDependencies { get; set; } = new[] { "**/*.*" };
     }
 }
