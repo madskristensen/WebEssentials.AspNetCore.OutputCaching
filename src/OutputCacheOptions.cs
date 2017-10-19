@@ -12,7 +12,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
     {
         internal OutputCacheOptions()
         {
-            Profiles = new Dictionary<string, IOutputCacheProfile>();
+            Profiles = new Dictionary<string, OutputCacheProfile>();
         }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <summary>
         /// A list of named caching profiles.
         /// </summary>
-        public IDictionary<string, IOutputCacheProfile> Profiles { get; }
+        public IDictionary<string, OutputCacheProfile> Profiles { get; }
 
         internal Func<HttpContext, bool> DefaultContextCheck = (context) =>
         {

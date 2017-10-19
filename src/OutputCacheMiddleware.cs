@@ -35,7 +35,8 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 await ServeFromCacheAsync(context, item);
             }
             else
-            {               await ServeFromMvcAndCacheAsync(context, entry);
+            {
+                await ServeFromMvcAndCacheAsync(context, entry);
             }
         }
 
@@ -85,8 +86,8 @@ namespace WebEssentials.AspNetCore.OutputCaching
         {
             if (entry == null)
             {
-                OutputCacheFeature feature = context.Features.Get<OutputCacheFeature>();
-                entry = new OutputCacheResponseEntry(context, bytes, feature);
+                OutputCacheProfile profile = context.Features.Get<OutputCacheProfile>();
+                entry = new OutputCacheResponseEntry(context, bytes, profile);
 
                 _cache.Set(context.Request.Path, entry, context);
             }
@@ -101,8 +102,10 @@ namespace WebEssentials.AspNetCore.OutputCaching
             if (context.Response.StatusCode != StatusCodes.Status200OK)
                 return;
 
-            if (!context.IsOutputCachingEnabled(out OutputCacheFeature feature))
+            if (!context.IsOutputCachingEnabled(out OutputCacheProfile profile))
+            {
                 return;
+            }
 
             if (context.Response.Headers.ContainsKey(HeaderNames.ETag))
                 return;

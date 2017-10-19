@@ -19,6 +19,11 @@ namespace Microsoft.AspNetCore.Mvc
         public OutputCacheAttribute(params string[] fileDependencies)
         {
             _fileDependencies = fileDependencies;
+
+            if (fileDependencies.Length == 0)
+            {
+                _fileDependencies = new[] { "**/*.*" };
+            }
         }
 
         /// <summary>
@@ -63,7 +68,8 @@ namespace Microsoft.AspNetCore.Mvc
                 (
                     slidingExpiration: TimeSpan.FromSeconds(Duration),
                     varyByHeaders: VaryByHeader,
-                    varyByParam: VaryByParam
+                    varyByParam: VaryByParam,
+                    fileDependencies: _fileDependencies
                 );
             }
         }

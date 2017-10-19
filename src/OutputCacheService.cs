@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -21,15 +22,15 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
         public void Set(string route, OutputCacheResponseEntry entry, HttpContext context)
         {
-            if (!context.IsOutputCachingEnabled(out OutputCacheFeature feature))
+            if (!context.IsOutputCachingEnabled(out OutputCacheProfile profile))
                 return;
 
             var env = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
 
             var options = new MemoryCacheEntryOptions();
-            options.SetSlidingExpiration(feature.SlidingExpiration.Value);
+            options.SetSlidingExpiration(TimeSpan.FromSeconds(profile.Duration));
 
-            foreach (string globs in feature.FileDependencies)
+            foreach (string globs in profile.FileDependencies)
             {
                 options.AddExpirationToken(env.ContentRootFileProvider.Watch(globs));
             }

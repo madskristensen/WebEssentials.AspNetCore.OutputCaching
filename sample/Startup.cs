@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using WebEssentials.AspNetCore.OutputCaching;
@@ -16,7 +17,8 @@ namespace Sample
             {
                 options.Profiles["default"] = new OutputCacheProfile
                 {
-                    Duration = 600
+                    Duration = 600,
+                    FileDependencies = new List<string>( new[] { "wwwroot/**/*.*" })
                 };
             });
         }

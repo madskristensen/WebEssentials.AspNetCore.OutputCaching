@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 
 namespace WebEssentials.AspNetCore.OutputCaching
@@ -8,15 +9,15 @@ namespace WebEssentials.AspNetCore.OutputCaching
     /// </summary>
     public class OutputCacheResponseEntry
     {
-        private OutputCacheFeature _feature;
+        private OutputCacheProfile _profile;
         private Dictionary<string, OutputCacheResponse> _responses = new Dictionary<string, OutputCacheResponse>();
 
         /// <summary>
         /// Creates a new instance of the entry.
         /// </summary>
-        public OutputCacheResponseEntry(HttpContext context, byte[] body, OutputCacheFeature feature)
+        public OutputCacheResponseEntry(HttpContext context, byte[] body, OutputCacheProfile profile)
         {
-            _feature = feature;
+            _profile = profile;
             Set(context, new OutputCacheResponse(body, context.Response.Headers));
         }
 
@@ -37,19 +38,25 @@ namespace WebEssentials.AspNetCore.OutputCaching
         {
             string key = "/";
 
-            foreach (string param in _feature.VaryByParam)
+            if (!string.IsNullOrEmpty(_profile.VaryByParam))
             {
-                if (context.Request.Query.ContainsKey(param))
+                foreach (string param in _profile.VaryByParam.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    key += param + "=" + context.Request.Query[param];
+                    if (context.Request.Query.ContainsKey(param))
+                    {
+                        key += param + "=" + context.Request.Query[param];
+                    }
                 }
             }
 
-            foreach (string header in _feature.VaryByHeaders)
+            if (!string.IsNullOrEmpty(_profile.VaryByHeader))
             {
-                if (context.Request.Headers.ContainsKey(header))
+                foreach (string header in _profile.VaryByHeader.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    key += header + "=" + context.Request.Headers[header];
+                    if (context.Request.Headers.ContainsKey(header))
+                    {
+                        key += header + "=" + context.Request.Headers[header];
+                    }
                 }
             }
 

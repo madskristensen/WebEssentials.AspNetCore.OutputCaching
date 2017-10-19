@@ -14,13 +14,14 @@ namespace Microsoft.AspNetCore.Http
         /// </summary>
         /// <param name="context"></param>
         /// <param name="profile">The caching profile to use.</param>
-        public static void EnableOutputCaching(this HttpContext context, IOutputCacheProfile profile)
+        public static void EnableOutputCaching(this HttpContext context, OutputCacheProfile profile)
         {
             var slidingExpiration = TimeSpan.FromSeconds(profile.Duration);
             string varyByHeader = profile.VaryByHeader;
             string varyByParam = profile.VaryByParam;
+            string[] fileDependencies = profile.FileDependencies.ToArray();
 
-            context.EnableOutputCaching(slidingExpiration, varyByHeader, varyByParam);
+            context.EnableOutputCaching(slidingExpiration, varyByHeader, varyByParam, fileDependencies);
         }
 
         /// <summary>
@@ -30,34 +31,28 @@ namespace Microsoft.AspNetCore.Http
         /// <param name="slidingExpiration">The amount of seconds to cache the output for.</param>
         /// <param name="varyByHeaders">Comma separated list of HTTP headers to vary the caching by.</param>
         /// <param name="varyByParam">Comma separated list of query string parameter names to vary the caching by.</param>
-        public static void EnableOutputCaching(this HttpContext context, TimeSpan slidingExpiration, string varyByHeaders = null, string varyByParam = null)
+        /// <param name="fileDependencies">Globbing patterns</param>
+        public static void EnableOutputCaching(this HttpContext context, TimeSpan slidingExpiration, string varyByHeaders = null, string varyByParam = null, params string[] fileDependencies)
         {
-            OutputCacheFeature feature = context.Features.Get<OutputCacheFeature>();
+            OutputCacheProfile feature = context.Features.Get<OutputCacheProfile>();
 
             if (feature == null)
             {
-                feature = new OutputCacheFeature();
+                feature = new OutputCacheProfile();
                 context.Features.Set(feature);
             }
 
-            feature.SlidingExpiration = slidingExpiration;
-
-            if (varyByHeaders != null)
-            {
-                feature.VaryByHeaders.AddRange(varyByHeaders.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(h => h.Trim()));
-            }
-
-            if (varyByParam != null)
-            {
-                feature.VaryByParam.AddRange(varyByParam.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()));
-            }
+            feature.Duration = slidingExpiration.TotalSeconds;
+            feature.FileDependencies.AddRange(fileDependencies);
+            feature.VaryByHeader = varyByHeaders;
+            feature.VaryByParam = varyByParam;
         }
 
-        internal static bool IsOutputCachingEnabled(this HttpContext context, out OutputCacheFeature feature)
+        internal static bool IsOutputCachingEnabled(this HttpContext context, out OutputCacheProfile feature)
         {
-            feature = context.Features.Get<OutputCacheFeature>();
+            feature = context.Features.Get<OutputCacheProfile>();
 
-            return feature != null && feature.IsEnabled;
+            return feature != null && feature.Duration > 0;
         }
     }
 }
