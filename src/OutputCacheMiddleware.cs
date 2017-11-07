@@ -30,7 +30,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             {
                 await _next(context);
             }
-            else if (_cache.TryGetValue(context.Request.Path, out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
+            else if (_cache.TryGetValue(context.Request.Host + context.Request.Path, out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
             {
                 await ServeFromCacheAsync(context, item);
             }
@@ -108,7 +108,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             if (entry == null)
             {
                 entry = new OutputCacheResponseEntry(context, bytes, profile);
-                _cache.Set(context.Request.Path, entry, context);
+                _cache.Set(context.Request.Host + context.Request.Path, entry, context);
             }
             else
             {
