@@ -27,5 +27,11 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// Globbing patterns relative to the content root (not the wwwroot).
         /// </summary>
         public IEnumerable<string> FileDependencies { get; set; } = new[] { "**/*.*" };
+
+        /// <summary>
+        /// Use absolute expiration instead of the default sliding expiration.
+        /// </summary>
+        public bool UseAbsoluteExpiration { get; set; }
+
     }
 }

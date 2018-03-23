@@ -20,8 +20,9 @@ namespace WebEssentials.AspNetCore.OutputCaching
             string varyByHeader = profile.VaryByHeader;
             string varyByParam = profile.VaryByParam;
             string[] fileDependencies = profile.FileDependencies.ToArray();
+            bool useAbsoluteExpiration = profile.UseAbsoluteExpiration;
 
-            context.EnableOutputCaching(slidingExpiration, varyByHeader, varyByParam, fileDependencies);
+            context.EnableOutputCaching(slidingExpiration, varyByHeader, varyByParam, useAbsoluteExpiration, fileDependencies);
         }
 
         /// <summary>
@@ -31,8 +32,9 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <param name="slidingExpiration">The amount of seconds to cache the output for.</param>
         /// <param name="varyByHeaders">Comma separated list of HTTP headers to vary the caching by.</param>
         /// <param name="varyByParam">Comma separated list of query string parameter names to vary the caching by.</param>
+        /// <param name="useAbsoluteExpiration">Use absolute expiration instead of the default sliding expiration.</param>
         /// <param name="fileDependencies">Globbing patterns</param>
-        public static void EnableOutputCaching(this HttpContext context, TimeSpan slidingExpiration, string varyByHeaders = null, string varyByParam = null, params string[] fileDependencies)
+        public static void EnableOutputCaching(this HttpContext context, TimeSpan slidingExpiration, string varyByHeaders = null, string varyByParam = null, bool useAbsoluteExpiration = false, params string[] fileDependencies)
         {
             OutputCacheProfile feature = context.Features.Get<OutputCacheProfile>();
 
@@ -46,6 +48,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             feature.FileDependencies = fileDependencies;
             feature.VaryByHeader = varyByHeaders;
             feature.VaryByParam = varyByParam;
+            feature.UseAbsoluteExpiration = useAbsoluteExpiration;
         }
 
         internal static bool IsOutputCachingEnabled(this HttpContext context, out OutputCacheProfile profile)
