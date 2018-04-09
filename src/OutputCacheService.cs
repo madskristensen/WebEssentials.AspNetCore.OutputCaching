@@ -28,7 +28,14 @@ namespace WebEssentials.AspNetCore.OutputCaching
             var env = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
 
             var options = new MemoryCacheEntryOptions();
-            options.SetSlidingExpiration(TimeSpan.FromSeconds(profile.Duration));
+            if (profile.UseAbsoluteExpiration)
+            {
+                options.SetAbsoluteExpiration(TimeSpan.FromSeconds(profile.Duration));
+            }
+            else
+            {
+                options.SetSlidingExpiration(TimeSpan.FromSeconds(profile.Duration));
+            }
 
             foreach (string globs in profile.FileDependencies)
             {
