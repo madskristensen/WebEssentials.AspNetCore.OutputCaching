@@ -26,6 +26,12 @@ namespace Sample.Controllers
             return View("Index");
         }
 
+        [OutputCache(VaryByCustom = "foo")]
+        public IActionResult Custom()
+        {
+            return View("Index");
+        }
+
         [OutputCache(Profile = "default")]
         public IActionResult Profile()
         {
