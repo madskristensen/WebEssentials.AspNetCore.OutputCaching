@@ -22,6 +22,7 @@ namespace Sample
                     FileDependencies= new []{ ""}
                 };
             });
+            services.AddTransient<IOutputCacheVaryByCustomService, OuputCacheVaryByCustomService>();
 
             services.AddWebMarkupMin(options =>
             {
