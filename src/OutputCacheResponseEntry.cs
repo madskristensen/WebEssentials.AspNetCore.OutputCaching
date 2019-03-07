@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
@@ -56,6 +57,19 @@ namespace WebEssentials.AspNetCore.OutputCaching
                     if (context.Request.Headers.ContainsKey(header))
                     {
                         key += header + "=" + context.Request.Headers[header];
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(_profile.VaryByCustom))
+            {
+                var varyByCustomService = context.RequestServices.GetService<IOutputCacheVaryByCustomService>();
+
+                if (varyByCustomService != null)
+                {
+                    foreach (string argument in _profile.VaryByCustom.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        key += argument + "=" + varyByCustomService.GetVaryByCustomString(argument);
                     }
                 }
             }

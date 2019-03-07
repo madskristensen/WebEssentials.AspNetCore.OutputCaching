@@ -24,6 +24,11 @@ namespace WebEssentials.AspNetCore.OutputCaching
         public string VaryByParam { get; set; }
 
         /// <summary>
+        /// Comma separated list of arguments to vary the caching by using a custom function.
+        /// </summary>
+        public string VaryByCustom { get; set; }
+
+        /// <summary>
         /// Globbing patterns relative to the content root (not the wwwroot).
         /// </summary>
         public IEnumerable<string> FileDependencies { get; set; } = new[] { "**/*.*" };

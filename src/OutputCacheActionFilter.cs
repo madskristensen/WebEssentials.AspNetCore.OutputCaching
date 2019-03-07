@@ -45,6 +45,11 @@ namespace Microsoft.AspNetCore.Mvc
         /// Comma separated list of query string parameters to vary the caching by.
         /// </summary>
         public string VaryByParam { get; set; }
+
+        /// <summary>
+        /// Comma separated list of arguments to vary the caching by using a custom function.
+        /// </summary>
+        public string VaryByCustom { get; set; }
                 
         /// <summary>
         /// Use absolute expiration instead of the default sliding expiration.
@@ -74,6 +79,7 @@ namespace Microsoft.AspNetCore.Mvc
                     slidingExpiration: TimeSpan.FromSeconds(Duration),
                     varyByHeaders: VaryByHeader,
                     varyByParam: VaryByParam,
+                    varyByCustom: VaryByCustom,
                     fileDependencies: _fileDependencies,
                     useAbsoluteExpiration: UseAbsoluteExpiration
                 );
