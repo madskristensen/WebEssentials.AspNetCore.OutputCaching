@@ -41,9 +41,9 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
             if (!string.IsNullOrEmpty(_profile.VaryByParam))
             {
-                foreach (string param in _profile.VaryByParam.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string param in _profile.VaryByParam.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (context.Request.Query.ContainsKey(param))
+                    if (param == "*" || context.Request.Query.ContainsKey(param))
                     {
                         key += param + "=" + context.Request.Query[param];
                     }
@@ -52,9 +52,9 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
             if (!string.IsNullOrEmpty(_profile.VaryByHeader))
             {
-                foreach (string header in _profile.VaryByHeader.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string header in _profile.VaryByHeader.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (context.Request.Headers.ContainsKey(header))
+                    if (header == "*" ||context.Request.Headers.ContainsKey(header))
                     {
                         key += header + "=" + context.Request.Headers[header];
                     }
@@ -67,7 +67,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
                 if (varyByCustomService != null)
                 {
-                    foreach (string argument in _profile.VaryByCustom.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (string argument in _profile.VaryByCustom.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
                     {
                         key += argument + "=" + varyByCustomService.GetVaryByCustomString(argument);
                     }
