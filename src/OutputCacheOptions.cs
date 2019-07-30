@@ -31,6 +31,11 @@ namespace WebEssentials.AspNetCore.OutputCaching
         public IDictionary<string, OutputCacheProfile> Profiles { get; }
 
         /// <summary>
+        /// Defines how long <see cref="OutputCacheProfile"/>s are cached.
+        /// </summary>
+        public TimeSpan ProfileCacheDuration { get; set; } = TimeSpan.FromDays(1);
+
+        /// <summary>
         /// The default request validator used by the middleware.
         /// </summary>
         public static Func<HttpContext, bool> DefaultRequestQualifier = (context) =>

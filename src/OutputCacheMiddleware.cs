@@ -29,17 +29,17 @@ namespace WebEssentials.AspNetCore.OutputCaching
             {
                 await _next(context);
             }
-            else if (_cache.TryGetValue(_cache.BuildRequestCacheKey(context.Request), out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
+            else if (_cache.TryGetValue(context, out OutputCacheResponse response))
             {
-                await ServeFromCacheAsync(context, item);
+                await ServeFromCacheAsync(context, response);
             }
             else
             {
-                await ServeFromMvcAndCacheAsync(context, entry);
+                await ServeFromMvcAndCacheAsync(context);
             }
         }
 
-        private async Task ServeFromMvcAndCacheAsync(HttpContext context, OutputCacheResponseEntry entry)
+        private async Task ServeFromMvcAndCacheAsync(HttpContext context)
         {
             HttpResponse response = context.Response;
             Stream originalStream = response.Body;
@@ -52,12 +52,13 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
                     await _next(context);
 
-                    if (_options.DoesResponseQualify(context))
+                    if (_options.DoesResponseQualify(context) &&
+                        context.IsOutputCachingEnabled())
                     {
                         byte[] bytes = ms.ToArray();
 
                         AddEtagToResponse(context, bytes);
-                        AddResponseToCache(context, entry, bytes);
+                        AddResponseToCache(context, bytes);
                     }
 
                     if (ms.Length > 0)
@@ -97,34 +98,16 @@ namespace WebEssentials.AspNetCore.OutputCaching
             }
         }
 
-        private void AddResponseToCache(HttpContext context, OutputCacheResponseEntry entry, byte[] bytes)
+        private void AddResponseToCache(HttpContext context, byte[] bytes)
         {
-            if (!context.IsOutputCachingEnabled(out OutputCacheProfile profile))
-            {
-                return;
-            }
-
-            if (entry == null)
-            {
-                entry = new OutputCacheResponseEntry(context, bytes, profile);
-                _cache.Set(_cache.BuildRequestCacheKey(context.Request), entry, context);
-            }
-            else
-            {
-                entry.AddResponse(context, new OutputCacheResponse(bytes, context.Response.Headers));
-            }
+            _cache.Set(context, new OutputCacheResponse(bytes, context.Response.Headers));
         }
 
         private static void AddEtagToResponse(HttpContext context, byte[] bytes)
         {
             if (context.Response.StatusCode != StatusCodes.Status200OK)
                 return;
-
-            if (!context.IsOutputCachingEnabled(out OutputCacheProfile profile))
-            {
-                return;
-            }
-
+            
             if (context.Response.Headers.ContainsKey(HeaderNames.ETag))
                 return;
 

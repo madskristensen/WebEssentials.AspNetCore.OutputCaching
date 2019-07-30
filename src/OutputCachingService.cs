@@ -1,57 +1,56 @@
-﻿using System;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
     internal class OutputCachingService : IOutputCachingService
     {
         private IMemoryCache _cache;
+        private readonly IOutputCacheKeysProvider _cacheKeysProvider;
+        private readonly OutputCacheOptions _cacheOptions;
 
-        public OutputCachingService()
+        public OutputCachingService(
+            IOutputCacheKeysProvider cacheKeysProvider,
+            OutputCacheOptions cacheOptions)
         {
             _cache = new MemoryCache(new MemoryCacheOptions());
+            _cacheKeysProvider = cacheKeysProvider;
+            _cacheOptions = cacheOptions;
         }
 
-        public bool TryGetValue(HttpRequest request, out OutputCacheResponseEntry value)
+        public bool TryGetValue(HttpContext context, out OutputCacheResponse response)
         {
-            return TryGetValue(BuildRequestCacheKey(request), out value);
+            response = null;
+            return
+                _cache.TryGetValue(_cacheKeysProvider.GetCacheProfileCacheKey(context.Request), out OutputCacheProfile profile) &&
+                _cache.TryGetValue(_cacheKeysProvider.GetRequestCacheKey(context, profile), out response);
         }
 
-        public bool TryGetValue(string requestCacheKey, out OutputCacheResponseEntry value)
+        public void Set(HttpContext context, OutputCacheResponse response)
         {
-            return _cache.TryGetValue(requestCacheKey, out value);
-        }
-
-        public void Set(string requestCacheKey, OutputCacheResponseEntry entry, HttpContext context)
-        {
-            if (!context.IsOutputCachingEnabled(out OutputCacheProfile profile))
-                return;
-
-            var env = (IHostingEnvironment)context.RequestServices.GetService(typeof(IHostingEnvironment));
-
-            var options = new MemoryCacheEntryOptions();
-            if (profile.UseAbsoluteExpiration)
+            if (context.IsOutputCachingEnabled(out OutputCacheProfile profile))
             {
-                options.SetAbsoluteExpiration(TimeSpan.FromSeconds(profile.Duration));
+                AddProfileToCache(context, profile);
+                AddResponseToCache(context, profile, response);
             }
-            else
-            {
-                options.SetSlidingExpiration(TimeSpan.FromSeconds(profile.Duration));
-            }
-
-            foreach (string globs in profile.FileDependencies)
-            {
-                options.AddExpirationToken(env.ContentRootFileProvider.Watch(globs));
-            }
-
-            _cache.Set(requestCacheKey, entry, options);
         }
 
-        public void Remove(string requestCacheKey)
+        private void AddProfileToCache(HttpContext context, OutputCacheProfile profile)
         {
-            _cache.Remove(requestCacheKey);
+            var profileCacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = _cacheOptions.ProfileCacheDuration
+            };
+            _cache.Set(_cacheKeysProvider.GetCacheProfileCacheKey(context.Request), profile, profileCacheEntryOptions);
+        }
+
+        private void AddResponseToCache(HttpContext context, OutputCacheProfile profile, OutputCacheResponse response)
+        {
+            var hostingEnvironment = context.RequestServices.GetRequiredService<IHostingEnvironment>();
+            var options = profile.BuildMemoryCacheEntryOptions(hostingEnvironment);
+            _cache.Set(_cacheKeysProvider.GetRequestCacheKey(context, profile), response, options);
         }
 
         public void Clear()
@@ -62,11 +61,6 @@ namespace WebEssentials.AspNetCore.OutputCaching
             }
 
             _cache = new MemoryCache(new MemoryCacheOptions());
-        }
-        
-        public string BuildRequestCacheKey(HttpRequest request)
-        {
-            return $"{request.Method}_{request.Host}{request.Path}";
         }
     }
 }

@@ -54,6 +54,11 @@ namespace WebEssentials.AspNetCore.OutputCaching
             feature.UseAbsoluteExpiration = useAbsoluteExpiration;
         }
 
+        internal static bool IsOutputCachingEnabled(this HttpContext context)
+        {
+            return context.IsOutputCachingEnabled(out var _);
+        }
+
         internal static bool IsOutputCachingEnabled(this HttpContext context, out OutputCacheProfile profile)
         {
             profile = context.Features.Get<OutputCacheProfile>();
