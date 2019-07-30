@@ -14,13 +14,17 @@ namespace WebEssentials.AspNetCore.OutputCaching
             _cache = new MemoryCache(new MemoryCacheOptions());
         }
 
-        public bool TryGetValue(string route, out OutputCacheResponseEntry value)
+        public bool TryGetValue(HttpRequest request, out OutputCacheResponseEntry value)
         {
-            string cleanRoute = NormalizeRoute(route);
-            return _cache.TryGetValue(cleanRoute, out value);
+            return TryGetValue(BuildRequestCacheKey(request), out value);
         }
 
-        public void Set(string route, OutputCacheResponseEntry entry, HttpContext context)
+        public bool TryGetValue(string requestCacheKey, out OutputCacheResponseEntry value)
+        {
+            return _cache.TryGetValue(requestCacheKey, out value);
+        }
+
+        public void Set(string requestCacheKey, OutputCacheResponseEntry entry, HttpContext context)
         {
             if (!context.IsOutputCachingEnabled(out OutputCacheProfile profile))
                 return;
@@ -42,14 +46,12 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 options.AddExpirationToken(env.ContentRootFileProvider.Watch(globs));
             }
 
-            string cleanRoute = NormalizeRoute(route);
-            _cache.Set(cleanRoute, entry, options);
+            _cache.Set(requestCacheKey, entry, options);
         }
 
-        public void Remove(string route)
+        public void Remove(string requestCacheKey)
         {
-            string cleanRoute = NormalizeRoute(route);
-            _cache.Remove(cleanRoute);
+            _cache.Remove(requestCacheKey);
         }
 
         public void Clear()
@@ -61,10 +63,10 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
             _cache = new MemoryCache(new MemoryCacheOptions());
         }
-
-        private static string NormalizeRoute(string route)
+        
+        public string BuildRequestCacheKey(HttpRequest request)
         {
-            return "/" + route.Trim().Trim('/');
+            return $"{request.Method}_{request.Host}{request.Path}";
         }
     }
 }
