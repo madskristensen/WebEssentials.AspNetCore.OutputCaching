@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Primitives;
-using Microsoft.Net.Http.Headers;
-using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
@@ -30,7 +29,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             {
                 await _next(context);
             }
-            else if (_cache.TryGetValue(context.Request.Host + context.Request.Path, out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
+            else if (_cache.TryGetValue(_cache.BuildRequestCacheKey(context.Request), out OutputCacheResponseEntry entry) && entry.IsCached(context, out OutputCacheResponse item))
             {
                 await ServeFromCacheAsync(context, item);
             }
@@ -108,7 +107,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             if (entry == null)
             {
                 entry = new OutputCacheResponseEntry(context, bytes, profile);
-                _cache.Set(context.Request.Host + context.Request.Path, entry, context);
+                _cache.Set(_cache.BuildRequestCacheKey(context.Request), entry, context);
             }
             else
             {
