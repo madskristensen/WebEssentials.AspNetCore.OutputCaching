@@ -1,7 +1,5 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Net.Http.Headers;
 using WebEssentials.AspNetCore.OutputCaching;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -16,10 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         public static void AddOutputCaching(this IServiceCollection services)
         {
-            var options = new OutputCacheOptions();
-
-            services.AddSingleton(options);
-            services.AddSingleton<IOutputCachingService, OutputCachingService>();
+            services.AddOutputCaching(new OutputCacheOptions());
         }
 
         /// <summary>
@@ -30,8 +25,14 @@ namespace Microsoft.Extensions.DependencyInjection
             var options = new OutputCacheOptions();
             outputCacheOptions(options);
 
+            services.AddOutputCaching(options);
+        }
+
+        private static void AddOutputCaching(this IServiceCollection services, OutputCacheOptions options)
+        {
             services.AddSingleton(options);
             services.TryAddSingleton<IOutputCachingService, OutputCachingService>();
+            services.TryAddSingleton<IOutputCacheKeysProvider, OutputCacheKeysProvider>();
         }
     }
 }

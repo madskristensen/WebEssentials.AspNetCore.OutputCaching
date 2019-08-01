@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
 
 namespace WebEssentials.AspNetCore.OutputCaching
@@ -37,6 +40,31 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// Use absolute expiration instead of the default sliding expiration.
         /// </summary>
         public bool UseAbsoluteExpiration { get; set; }
+        
+        /// <summary>
+        /// Builds an instance of <see cref="MemoryCacheEntryOptions"/> based on the current configuration.
+        /// </summary>
+        /// <param name="hostingEnvironment">HostingEnvironment used to watch <see cref="FileDependencies"/>.</param>
+        public MemoryCacheEntryOptions BuildMemoryCacheEntryOptions(IHostingEnvironment hostingEnvironment)
+        {
+            var options = new MemoryCacheEntryOptions();
 
+            var durationTimeSpan = TimeSpan.FromSeconds(Duration);
+            if (UseAbsoluteExpiration)
+            {
+                options.SetAbsoluteExpiration(durationTimeSpan);
+            }
+            else
+            {
+                options.SetSlidingExpiration(durationTimeSpan);
+            }
+
+            foreach (string globs in FileDependencies)
+            {
+                options.AddExpirationToken(hostingEnvironment.ContentRootFileProvider.Watch(globs));
+            }
+
+            return options;
+        }
     }
 }
