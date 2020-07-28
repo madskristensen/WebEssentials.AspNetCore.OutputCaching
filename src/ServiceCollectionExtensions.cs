@@ -1,8 +1,8 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using WebEssentials.AspNetCore.OutputCaching;
 
-namespace WebEssentials.AspNetCore.OutputCaching
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extension methods to register the output caching service.

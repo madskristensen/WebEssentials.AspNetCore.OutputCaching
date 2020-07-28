@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using WebEssentials.AspNetCore.OutputCaching;
 
-namespace WebEssentials.AspNetCore.OutputCaching
+namespace Microsoft.AspNetCore.Builder
 {
     /// <summary>
     /// Extensions for registering the output caching middleware.
