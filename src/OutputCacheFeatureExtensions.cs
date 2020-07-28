@@ -16,6 +16,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <param name="profile">The caching profile to use.</param>
         public static void EnableOutputCaching(this HttpContext context, OutputCacheProfile profile)
         {
+            bool isUserBase = profile.IsUserBased;
             var slidingExpiration = TimeSpan.FromSeconds(profile.Duration);
             string varyByHeader = profile.VaryByHeader;
             string varyByParam = profile.VaryByParam;
@@ -23,7 +24,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             string[] fileDependencies = profile.FileDependencies.ToArray();
             bool useAbsoluteExpiration = profile.UseAbsoluteExpiration;
 
-            context.EnableOutputCaching(slidingExpiration, varyByHeader, varyByParam, varyByCustom, useAbsoluteExpiration, fileDependencies);
+            context.EnableOutputCaching(slidingExpiration, varyByHeader, varyByParam, varyByCustom, useAbsoluteExpiration, isUserBase, fileDependencies);
         }
 
         /// <summary>
@@ -35,8 +36,9 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <param name="varyByParam">Comma separated list of query string parameter names to vary the caching by.</param>
         /// <param name="varyByCustom">Comma separated list of arguments to vary the caching by using a custom function.</param>
         /// <param name="useAbsoluteExpiration">Use absolute expiration instead of the default sliding expiration.</param>
+        /// <param name="isUserBase">A flag for caching the response based on the user</param>
         /// <param name="fileDependencies">Globbing patterns</param>
-        public static void EnableOutputCaching(this HttpContext context, TimeSpan slidingExpiration, string varyByHeaders = null, string varyByParam = null, string varyByCustom = null, bool useAbsoluteExpiration = false, params string[] fileDependencies)
+        public static void EnableOutputCaching(this HttpContext context, TimeSpan slidingExpiration, string varyByHeaders = null, string varyByParam = null, string varyByCustom = null, bool useAbsoluteExpiration = false, bool isUserBase = true, params string[] fileDependencies)
         {
             OutputCacheProfile feature = context.Features.Get<OutputCacheProfile>();
 
@@ -46,6 +48,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 context.Features.Set(feature);
             }
 
+            feature.IsUserBased = isUserBase;
             feature.Duration = slidingExpiration.TotalSeconds;
             feature.FileDependencies = fileDependencies;
             feature.VaryByHeader = varyByHeaders;

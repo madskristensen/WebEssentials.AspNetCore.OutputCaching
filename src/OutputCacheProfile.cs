@@ -12,6 +12,11 @@ namespace WebEssentials.AspNetCore.OutputCaching
     public class OutputCacheProfile
     {
         /// <summary>
+        /// A flag for caching the response based on the user
+        /// </summary>
+        public bool IsUserBased { get; set; }
+        
+        /// <summary>
         /// The duration in seconds of how long to cache the response.
         /// </summary>
         public double Duration { get; set; }

@@ -50,7 +50,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 }
             }
 
-            if (context.User.Identity.IsAuthenticated)
+            if (profile.IsUserBased && context.User.Identity.IsAuthenticated)
             {
                 key += "UserId=" + context.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             }
