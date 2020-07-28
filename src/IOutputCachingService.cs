@@ -27,5 +27,13 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// Clears the cache.
         /// </summary>
         void Clear();
+        
+        /// <summary>
+        /// Remove the cache.
+        /// </summary>
+        /// <param name="method">The HTTP method.</param>
+        /// <param name="host">The Host header.</param>
+        /// <param name="path">The request path from RequestPath.</param>
+        void Remove(string method, string host, string path);
     }
 }

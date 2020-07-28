@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,6 +68,20 @@ namespace WebEssentials.AspNetCore.OutputCaching
             _cache?.Dispose();
 
             _cache = new MemoryCache(new MemoryCacheOptions());
+        }
+
+        public void Remove(string method, string host, string path)
+        {
+            FieldInfo fieldInfo = _cache.GetType().GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            object entries = fieldInfo?.GetValue(_cache);
+
+            var keys = (IReadOnlyCollection<object>) entries?.GetType().GetProperty("Keys")?.GetValue(entries);
+
+            if (keys == null)
+                return;
+
+            foreach (object key in keys.Where(key => ((string) key).StartsWith($"{method}_{host}{path}")))
+                _cache.Remove(key);
         }
     }
 }
