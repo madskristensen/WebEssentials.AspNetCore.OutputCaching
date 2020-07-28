@@ -56,7 +56,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
         internal static bool IsOutputCachingEnabled(this HttpContext context)
         {
-            return context.IsOutputCachingEnabled(out var _);
+            return context.IsOutputCachingEnabled(out OutputCacheProfile _);
         }
 
         internal static bool IsOutputCachingEnabled(this HttpContext context, out OutputCacheProfile profile)

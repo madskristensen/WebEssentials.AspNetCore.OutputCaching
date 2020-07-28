@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
-using WebEssentials.AspNetCore.OutputCaching;
 
-namespace Microsoft.AspNetCore.Mvc
+namespace WebEssentials.AspNetCore.OutputCaching
 {
     /// <summary>
     /// Enables server-side output caching.

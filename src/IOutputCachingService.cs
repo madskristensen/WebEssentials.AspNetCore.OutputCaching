@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
@@ -12,14 +14,14 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// </summary>
         /// <param name="context">The current HttpContext.</param>
         /// <param name="response">The cached response if a match was found in the cache.</param>
-        bool TryGetValue(HttpContext context, out OutputCacheResponse response);
+        bool TryGetValue(HttpContext context, JObject jObject, out OutputCacheResponse response);
 
         /// <summary>
         /// Adds an entry to the cache.
         /// </summary>
         /// <param name="context">The current HttpContext.</param>
         /// <param name="response">The response to cache.</param>
-        void Set(HttpContext context, OutputCacheResponse response);
+        void Set(HttpContext context, OutputCacheResponse response, JObject jObject);
         
         /// <summary>
         /// Clears the cache.

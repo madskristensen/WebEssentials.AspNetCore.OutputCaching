@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
@@ -18,6 +19,6 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// </summary>
         /// <param name="context">The current <see cref="HttpContext"/>.</param>
         /// <param name="profile">The profile that is used to cache the request.</param>
-        string GetRequestCacheKey(HttpContext context, OutputCacheProfile profile);
+        string GetRequestCacheKey(HttpContext context, OutputCacheProfile profile, JObject jObject);
     }
 }

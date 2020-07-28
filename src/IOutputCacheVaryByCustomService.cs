@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace WebEssentials.AspNetCore.OutputCaching
 {
     /// <summary>

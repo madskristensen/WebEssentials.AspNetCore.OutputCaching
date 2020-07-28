@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
-using System;
-using WebEssentials.AspNetCore.OutputCaching;
+﻿using Microsoft.AspNetCore.Builder;
 
-namespace Microsoft.AspNetCore.Builder
+namespace WebEssentials.AspNetCore.OutputCaching
 {
     /// <summary>
     /// Extensions for registering the output caching middleware.

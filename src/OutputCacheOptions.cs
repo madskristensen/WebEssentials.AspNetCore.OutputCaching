@@ -12,7 +12,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
     {
         internal OutputCacheOptions()
         {
-            Profiles = new Dictionary<string, OutputCacheProfile>();
+            _profiles = new Dictionary<string, OutputCacheProfile>();
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <summary>
         /// A list of named caching profiles.
         /// </summary>
-        public IDictionary<string, OutputCacheProfile> Profiles { get; }
+        public IDictionary<string, OutputCacheProfile> Profiles => _profiles;
 
         /// <summary>
         /// Defines how long <see cref="OutputCacheProfile"/>s are cached.
@@ -40,8 +40,8 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// </summary>
         public static Func<HttpContext, bool> DefaultRequestQualifier = (context) =>
         {
-            if (context.Request.Method != HttpMethods.Get) return false;
-            if (context.User.Identity.IsAuthenticated) return false;
+            if (context.Request.Method != HttpMethods.Get && context.Request.Method != HttpMethods.Post) return false;
+            // if (context.User.Identity.IsAuthenticated) return false;
 
             return true;
         };
@@ -49,12 +49,12 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// <summary>
         /// The default response validator used by the middleware.
         /// </summary>
-        public static Func<HttpContext, bool> DefaultResponseQualifier = (context) =>
+        public static readonly Func<HttpContext, bool> DefaultResponseQualifier = (context) =>
         {
             if (context.Response.StatusCode != StatusCodes.Status200OK) return false;
-            if (context.Response.Headers.ContainsKey(HeaderNames.SetCookie)) return false;
-
-            return true;
+            return !context.Response.Headers.ContainsKey(HeaderNames.SetCookie);
         };
+
+        private readonly IDictionary<string, OutputCacheProfile> _profiles;
     }
 }
