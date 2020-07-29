@@ -32,7 +32,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
             else
             {
                 JObject jObject = null;
-                if (context.Request.ContentType.Contains("application/json"))
+                if (context.Request.ContentType != null && context.Request.ContentType.Contains("application/json"))
                 {
                     try
                     {
