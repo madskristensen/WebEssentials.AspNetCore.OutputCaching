@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
-using System;
-using WebEssentials.AspNetCore.OutputCaching;
+﻿using WebEssentials.AspNetCore.OutputCaching;
 
 namespace Microsoft.AspNetCore.Builder
 {

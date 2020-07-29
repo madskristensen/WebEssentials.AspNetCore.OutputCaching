@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
 using WebEssentials.AspNetCore.OutputCaching;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -30,6 +29,11 @@ namespace Microsoft.AspNetCore.Mvc
         /// The name of the profile.
         /// </summary>
         public string Profile { get; set; }
+
+        /// <summary>
+        /// A flag for caching the response based on the user
+        /// </summary>
+        public bool IsUserBased { get; set; }
 
         /// <summary>
         /// The duration in seconds of how long to cache the response.
@@ -76,6 +80,7 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 context.HttpContext.EnableOutputCaching
                 (
+                    isUserBase: IsUserBased,
                     slidingExpiration: TimeSpan.FromSeconds(Duration),
                     varyByHeaders: VaryByHeader,
                     varyByParam: VaryByParam,

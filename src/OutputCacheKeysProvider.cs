@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace WebEssentials.AspNetCore.OutputCaching
 {
@@ -11,44 +14,45 @@ namespace WebEssentials.AspNetCore.OutputCaching
             return $"{request.Method}_{request.Host}{request.Path}";
         }
 
-        public string GetRequestCacheKey(HttpContext context, OutputCacheProfile profile)
+        public string GetRequestCacheKey(HttpContext context, OutputCacheProfile profile, JObject jObject)
         {
             HttpRequest request = context.Request;
             string key = GetCacheProfileCacheKey(request) + "_";
 
             if (!string.IsNullOrEmpty(profile.VaryByParam))
             {
-                foreach (string param in profile.VaryByParam.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    if (param == "*" || request.Query.ContainsKey(param))
-                    {
-                        key += param + "=" + request.Query[param];
-                    }
-                }
+                key = profile.VaryByParam.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(param =>
+                        param == "*" || request.Query.ContainsKey(param) || (jObject != null && jObject.ContainsKey(param)))
+                    .Aggregate(key,
+                        (current, param) =>
+                            current + (jObject != null
+                                ? param + "=" + jObject.SelectToken(param)
+                                : param + "=" + request.Query[param]));
             }
 
             if (!string.IsNullOrEmpty(profile.VaryByHeader))
             {
-                foreach (string header in profile.VaryByHeader.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    if (header == "*" || request.Headers.ContainsKey(header))
-                    {
-                        key += header + "=" + request.Headers[header];
-                    }
-                }
+                key = profile.VaryByHeader.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(header => header == "*" || request.Headers.ContainsKey(header)).Aggregate(key,
+                        (current, header) => current + (header + "=" + request.Headers[header]));
             }
 
             if (!string.IsNullOrEmpty(profile.VaryByCustom))
             {
-                var varyByCustomService = context.RequestServices.GetService<IOutputCacheVaryByCustomService>();
+                IOutputCacheVaryByCustomService varyByCustomService = context.RequestServices.GetService<IOutputCacheVaryByCustomService>();
 
                 if (varyByCustomService != null)
                 {
-                    foreach (string argument in profile.VaryByCustom.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        key += argument + "=" + varyByCustomService.GetVaryByCustomString(argument);
-                    }
+                    key = profile.VaryByCustom.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Aggregate(key,
+                        (current, argument) =>
+                            current + (argument + "=" + varyByCustomService.GetVaryByCustomString(argument)));
                 }
+            }
+
+            if (profile.IsUserBased && context.User.Identity.IsAuthenticated)
+            {
+                key += "UserId=" + context.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             }
 
             return key;
