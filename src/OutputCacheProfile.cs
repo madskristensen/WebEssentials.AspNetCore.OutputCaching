@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 
 namespace WebEssentials.AspNetCore.OutputCaching
@@ -32,9 +33,14 @@ namespace WebEssentials.AspNetCore.OutputCaching
         public string VaryByCustom { get; set; }
 
         /// <summary>
-        /// Globbing patterns relative to the content root (not the wwwroot).
+        /// Globbing patterns relative to <see cref="FileProvider"/> (default file provider is the content root, not the wwwroot).
         /// </summary>
         public IEnumerable<string> FileDependencies { get; set; } = new[] { "**/*.*" };
+
+        /// <summary>
+        /// File provider to use for file dependencies. When not set, the content root file provider is used (not the wwwroot).
+        /// </summary>
+        public IFileProvider FileProvider { get; set; }
 
         /// <summary>
         /// Use absolute expiration instead of the default sliding expiration.
@@ -48,6 +54,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
         public MemoryCacheEntryOptions BuildMemoryCacheEntryOptions(IHostingEnvironment hostingEnvironment)
         {
             var options = new MemoryCacheEntryOptions();
+            var dependenciesFileProvider = FileProvider ?? hostingEnvironment.ContentRootFileProvider;
 
             var durationTimeSpan = TimeSpan.FromSeconds(Duration);
             if (UseAbsoluteExpiration)
@@ -61,7 +68,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
             foreach (string globs in FileDependencies)
             {
-                options.AddExpirationToken(hostingEnvironment.ContentRootFileProvider.Watch(globs));
+                options.AddExpirationToken(dependenciesFileProvider.Watch(globs));
             }
 
             return options;
