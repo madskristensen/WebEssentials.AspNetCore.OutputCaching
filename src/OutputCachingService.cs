@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Threading;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,12 +56,8 @@ namespace WebEssentials.AspNetCore.OutputCaching
 
         public void Clear()
         {
-            if (_cache != null)
-            {
-                _cache.Dispose();
-            }
-
-            _cache = new MemoryCache(new MemoryCacheOptions());
+            var old = Interlocked.Exchange(ref _cache, new MemoryCache(new MemoryCacheOptions()));
+            old?.Dispose();
         }
     }
 }
