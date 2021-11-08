@@ -59,5 +59,10 @@ namespace WebEssentials.AspNetCore.OutputCaching
             var old = Interlocked.Exchange(ref _cache, new MemoryCache(new MemoryCacheOptions()));
             old?.Dispose();
         }
+
+        public void Remove(string cacheKey)
+        {
+            _cache.Remove(cacheKey);
+        }
     }
 }

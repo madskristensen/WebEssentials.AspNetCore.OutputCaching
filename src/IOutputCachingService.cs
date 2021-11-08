@@ -25,5 +25,11 @@ namespace WebEssentials.AspNetCore.OutputCaching
         /// Clears the cache.
         /// </summary>
         void Clear();
+
+        /// <summary>
+        /// Removes entry from the cache
+        /// </summary>
+        /// <param name="cacheKey">Cache key generated for cached response</param>
+        void Remove(string cacheKey);
     }
 }

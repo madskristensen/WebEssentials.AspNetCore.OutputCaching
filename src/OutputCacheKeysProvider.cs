@@ -6,15 +6,15 @@ namespace WebEssentials.AspNetCore.OutputCaching
 {
     internal class OutputCacheKeysProvider : IOutputCacheKeysProvider
     {
-        public string GetCacheProfileCacheKey(HttpRequest request)
+        public string GetCacheProfileCacheKey(HttpRequest request, string forPath = null, string httpMethod = null)
         {
-            return $"{request.Method}_{request.Host}{request.Path}";
+            return $"{httpMethod ?? request.Method}_{request.Host}{forPath ?? request.Path}";
         }
 
-        public string GetRequestCacheKey(HttpContext context, OutputCacheProfile profile)
+        public string GetRequestCacheKey(HttpContext context, OutputCacheProfile profile, string forPath = null, string httpMethod  = null)
         {
             HttpRequest request = context.Request;
-            string key = GetCacheProfileCacheKey(request) + "_";
+            string key = GetCacheProfileCacheKey(request, forPath, httpMethod) + "_";
 
             if (!string.IsNullOrEmpty(profile.VaryByParam))
             {
