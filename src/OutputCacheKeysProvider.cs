@@ -51,7 +51,7 @@ namespace WebEssentials.AspNetCore.OutputCaching
                 }
             }
 
-            return key;
+            return key.ToLowerInvariant();
         }
     }
 }

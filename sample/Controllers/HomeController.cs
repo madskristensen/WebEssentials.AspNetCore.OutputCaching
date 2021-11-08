@@ -8,6 +8,15 @@ namespace Sample.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IOutputCachingService _outputCachingService;
+        private readonly IOutputCacheKeysProvider _outputCacheKeysProvider;
+
+        public HomeController(IOutputCachingService outputCachingService, IOutputCacheKeysProvider outputCacheKeysProvider)
+        {
+            this._outputCachingService = outputCachingService;
+            this._outputCacheKeysProvider = outputCacheKeysProvider;
+        }
+
         [OutputCache(Duration = 600)]
         public IActionResult Index()
         {
@@ -35,6 +44,21 @@ namespace Sample.Controllers
         [OutputCache(Profile = "default")]
         public IActionResult Profile()
         {
+            return View("Index");
+        }
+
+        public IActionResult InvalidateQueryCache()
+        {
+            var key = _outputCacheKeysProvider.GetRequestCacheKey(HttpContext, 
+                                                                  new OutputCacheProfile() { 
+                                                                      Duration = 600, 
+                                                                      VaryByParam = "foo", 
+                                                                      VaryByHeader = null,
+                                                                      VaryByCustom = null
+                                                                  }, 
+                                                                  Url.Action("Query", "Home"), 
+                                                                  System.Net.WebRequestMethods.Http.Get);
+            _outputCachingService.Remove(key);
             return View("Index");
         }
 
