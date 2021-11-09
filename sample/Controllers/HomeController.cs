@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 using System;
 using WebEssentials.AspNetCore.OutputCaching;
 using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http.Internal;
+using System.Collections.Generic;
+using Microsoft.Extensions.Primitives;
 
 namespace Sample.Controllers
 {
@@ -49,15 +52,19 @@ namespace Sample.Controllers
 
         public IActionResult InvalidateQueryCache()
         {
+            var queryString = new Dictionary<string, StringValues>();
+            queryString.Add("foo", new StringValues("1"));
             var key = _outputCacheKeysProvider.GetRequestCacheKey(HttpContext, 
                                                                   new OutputCacheProfile() { 
                                                                       Duration = 600, 
                                                                       VaryByParam = "foo", 
                                                                       VaryByHeader = null,
                                                                       VaryByCustom = null
-                                                                  }, 
-                                                                  Url.Action("Query", "Home"), 
-                                                                  System.Net.WebRequestMethods.Http.Get);
+                                                                  },  
+                                                                  System.Net.WebRequestMethods.Http.Get,
+                                                                  Url.Action("Query", "Home"),
+                                                                  new QueryCollection(queryString)
+                                                                  );
             _outputCachingService.Remove(key);
             return View("Index");
         }
