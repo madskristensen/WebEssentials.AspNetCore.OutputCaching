@@ -12,7 +12,8 @@
     <Product>WebEssentials.AspNetCore.OutputCaching</Product>
     <PackageIconUrl>https://raw.githubusercontent.com/madskristensen/WebEssentials.AspNetCore.OutputCaching/master/art/logo.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/madskristensen/WebEssentials.AspNetCore.OutputCaching</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/madskristensen/WebEssentials.AspNetCore.OutputCaching/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/madskristensen/WebEssentials.AspNetCore.OutputCaching</RepositoryUrl>
   </PropertyGroup>
 
